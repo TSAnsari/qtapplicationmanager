@@ -337,6 +337,9 @@ QString SoftwareContainer::mapHostPathToContainer(const QString &hostPath) const
     if (fileInfo.isFile())
         containerPath = m_containerPath + QString("/") + fileInfo.fileName();
 
+    qWarning() << "Host Path: " << hostPath << ", ContainerPath: " << containerPath;
+    qWarning() << "mHost Path: " << m_hostPath << ", mContainerPath: " << m_containerPath;
+
     return containerPath;
 }
 
@@ -364,6 +367,7 @@ bool SoftwareContainer::sendBindMounts()
         return false;
 
     QFileInfo fontCacheInfo(qSL("/var/cache/fontconfig"));
+    QFileInfo iptablesLock(qSL("/run"));
 
     QVector<std::tuple<QString, QString, bool>> bindMounts; // bool == isReadOnly
     // the private P2P D-Bus
@@ -374,6 +378,8 @@ bool SoftwareContainer::sendBindMounts()
 
     // Qt's plugin path
     bindMounts.append(std::make_tuple(m_qtPluginPathInfo.absoluteFilePath(), m_qtPluginPathInfo.absoluteFilePath(), false));
+
+    //bindMounts.append(std::make_tuple(iptablesLock.absoluteFilePath(), iptablesLock.absoluteFilePath(), false));
 
     // the actual path to the application
     bindMounts.append(std::make_tuple(m_hostPath, m_containerPath, true));
